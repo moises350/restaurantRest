@@ -17,29 +17,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.restaurantRes.entities.Pedido;
 import br.com.restaurantRes.error.ResourceNotFoundException;
-import br.com.restaurantRes.model.OrderRestaurant;
-import br.com.restaurantRes.repository.OrderRepository;
+import br.com.restaurantRes.repository.PedidoRepository;
+import br.com.restaurantRes.services.PedidoService;
 
 @RestController
-@RequestMapping("orders")
-public class OrderEndPoint 
+@RequestMapping("pedidos")
+public class PedidoEndPoint 
 {
 	@Autowired
-	OrderRepository orderRepositoryDao;
+	PedidoRepository pedidoRepositoryDao;
+	
+	@Autowired
+	PedidoService pedidoService;
 	
 	@GetMapping
 	public ResponseEntity<?> listAll()
 	{
-		
-		return new ResponseEntity<Iterable<OrderRestaurant>>(orderRepositoryDao.findAll(), HttpStatus.OK);
+		return new ResponseEntity<Iterable<Pedido>>(pedidoRepositoryDao.findAll(), HttpStatus.OK);
 	}
 	
 	@GetMapping( path = "/{id}")
 	public ResponseEntity<?> getOrderById(@PathVariable("id") Long id)
 	{
 		verifyIfOrderExists(id);				
-		Optional<OrderRestaurant> order = orderRepositoryDao.findById(id);	
+		Optional<Pedido> order = pedidoRepositoryDao.findById(id);	
 		return new ResponseEntity<Object>(order, HttpStatus.OK);
 	}
 	
@@ -52,30 +55,30 @@ public class OrderEndPoint
 	
 	@PostMapping
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> save(@Valid @RequestBody OrderRestaurant order)
+	public ResponseEntity<?> save(@Valid @RequestBody Pedido order)
 	{
-		return new ResponseEntity<Object>(orderRepositoryDao.save(order), HttpStatus.CREATED);
+		return new ResponseEntity<Object>(pedidoService.inserir(order), HttpStatus.CREATED);
 	}
 	
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<?> delete(@PathVariable Long id)
 	{
 		verifyIfOrderExists(id);	
-		orderRepositoryDao.deleteById(id);
+		pedidoRepositoryDao.deleteById(id);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 	
 	@PutMapping
-	public ResponseEntity<?> update(@RequestBody OrderRestaurant order)
+	public ResponseEntity<?> update(@RequestBody Pedido order)
 	{
 		verifyIfOrderExists(order.getId());	
-		orderRepositoryDao.save(order);
+		pedidoRepositoryDao.save(order);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 	
 	private void verifyIfOrderExists(Long id)
 	{
-		if(!orderRepositoryDao.findById(id).isPresent())
+		if(!pedidoRepositoryDao.findById(id).isPresent())
 		{
 			throw new ResourceNotFoundException("Order not Found for ID: "+ id);
 		}

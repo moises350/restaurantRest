@@ -41,6 +41,7 @@ public class CardapioEndPoint
 	{
 		verifyIfOrderExists(id);				
 		Optional<Cardapio> cardapio = cardapioRepositoryDao.findById(id);	
+		System.out.println("Mudança de versão");
 		return new ResponseEntity<Object>(cardapio, HttpStatus.OK);
 	}
 	
